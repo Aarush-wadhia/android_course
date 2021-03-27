@@ -7,9 +7,18 @@
     tools:context=".MainActivity"
     android:orientation="vertical">
 
-    <Spinner
-        android:id="@+id/country_spinner"
+
+    <TextView
+        android:id="@+id/textPercent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="percent"/>
+
+    <SeekBar
+        android:id="@+id/seekBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:progress="40"/>
 
 </RelativeLayout>
