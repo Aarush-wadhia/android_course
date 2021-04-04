@@ -1,21 +1,21 @@
 package org.yash.booklibrary.adapters;
 
-import android.content.Context;
+import android.content.Intent;
 import android.transition.TransitionManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import org.yash.booklibrary.BookDetail;
+import org.yash.booklibrary.Constant;
 import org.yash.booklibrary.R;
 import org.yash.booklibrary.modal.Books;
 
@@ -56,6 +56,16 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder>{
             holder.up_arrow.setVisibility(View.GONE);
             holder.down_arrow.setVisibility(View.VISIBLE);
         }
+
+        holder.image_url.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(parent.getContext(), BookDetail.class);
+                int id = bookList.get(position).getId();
+                intent.putExtra(Constant.BOOK_ID, id);
+                parent.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override

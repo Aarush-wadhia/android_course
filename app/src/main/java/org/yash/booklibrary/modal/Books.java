@@ -1,14 +1,20 @@
 package org.yash.booklibrary.modal;
 
 public class Books {
+    private int id;
     private String bookName, bookAuthor, imageUrl, shortDescription;
     private boolean isExpandable = false;
 
-    public Books(String bookName, String bookAuthor, String imageUrl, String shortDescription) {
+    public Books(int id, String bookName, String bookAuthor, String imageUrl, String shortDescription) {
+        this.id = id;
         this.bookName = bookName;
         this.bookAuthor = bookAuthor;
         this.imageUrl = imageUrl;
         this.shortDescription = shortDescription;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getBookName() {
