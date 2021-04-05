@@ -1,28 +1,44 @@
 package org.yash;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
-import java.util.ArrayList;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    RecyclerView contactRecView;
+    private String name = "Yash";
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getApplicationContext();
         setContentView(R.layout.activity_main);
-        contactRecView = findViewById(R.id.contactRecView);
-        ArrayList<Contacts> contactsArrayList = new ArrayList<>();
-        contactsArrayList.add(new Contacts("Yash", "yashwadhia@gmail.com"));
-        contactsArrayList.add(new Contacts("Priyadarshani", "priyadarshani@gmail.com"));
-        contactsArrayList.add(new Contacts("Vaibhav", "vaibhavsaidsomething@gmail.com"));
-        ContactAdapter contactAdapter = new ContactAdapter(contactsArrayList);
-        contactRecView.setLayoutManager(new LinearLayoutManager(this));
-        contactRecView.setAdapter(contactAdapter);
+        TextView textView = findViewById(R.id.textView);
+        Button button = findViewById(R.id.button);
+
+        if (null != savedInstanceState) {
+            String value = savedInstanceState.getString("name");
+            if (null != value) {
+                textView.setText(value);
+            }
+        }
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textView.setText(name);
+            }
+        });
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("name", name);
     }
 }
