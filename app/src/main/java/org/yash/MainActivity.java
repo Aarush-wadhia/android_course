@@ -1,5 +1,6 @@
 package org.yash;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -10,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -22,49 +24,30 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     Button button;
-    TextView textView;
-    boolean isBind = false;
-    BasicService basicService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         button = findViewById(R.id.button);
-        textView = findViewById(R.id.textview);
-        startBindingService();
         button.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.P)
             @Override
             public void onClick(View v) {
-                int randomnumber = basicService.generateRandomNumber();
-                textView.setText(String.valueOf(randomnumber));
+                ComponentName componentName = new ComponentName(MainActivity.this, ExampleJobService.class);
+                JobInfo info = new JobInfo.Builder(123, componentName)
+                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                        .setPersisted(true)
+                        .setPeriodic(15 * 60 * 1000)
+                        .build();
+
+                JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+                int resultCode = scheduler.schedule(info);
+                if (resultCode == JobScheduler.RESULT_SUCCESS) {
+                    Log.d("MainACtivity: ", "Job has been schedule");
+                } else {
+                    Log.d("MainACtivity: ", "Job scheduling failed");
+                }
             }
         });
-    }
-
-    private void startBindingService() {
-        Intent intent = new Intent(this, BasicService.class);
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            BasicService.LocalService myService = (BasicService.LocalService) service;
-            basicService = myService.getService();
-            isBind = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            isBind = false;
-        }
-    };
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (isBind) {
-            unbindService(serviceConnection);
-        }
     }
 }
