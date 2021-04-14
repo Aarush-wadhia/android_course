@@ -5,19 +5,19 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/title"
-        android:text="News about Formula 1"
+        android:id="@+id/data"
+        android:text="Text data"
+        android:layout_above="@+id/button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/button"
+        android:text="GET DATA"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="15dp"
-        android:textSize="20dp"
-        android:textColor="@color/black"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/newsRecView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/title"
-        android:layout_margin="10dp"/>
+        android:layout_centerInParent="true"/>
 
 </RelativeLayout>
