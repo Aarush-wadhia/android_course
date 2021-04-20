@@ -5,6 +5,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,12 +15,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements BookAdapter.DeleteBook {
 
     private RecyclerView libRecView;
     private BookAdapter bookAdapter;
-    private Thread getBookThread;
-    private DatabaseHelper databaseHelper;
+    private Thread getAllBookThread, deleteBookThread;
+    ArrayList<Books> booksList = new ArrayList<>();
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,12 +30,13 @@ public class MainActivity extends AppCompatActivity {
         bookAdapter = new BookAdapter(this);
         libRecView.setAdapter(bookAdapter);
         libRecView.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
-        databaseHelper = new DatabaseHelper(this);
-        getAllBooks(databaseHelper);
+
+        getAllBooks();
     }
 
-    private void getAllBooks(DatabaseHelper dbHelper) {
-        getBookThread = new Thread(new Runnable() {
+    private void getAllBooks() {
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        getAllBookThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -42,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
                     Cursor cursor = db.query("library", null, null, null, null, null, null);
                     if (null != cursor) {
                         if (cursor.moveToFirst()) {
-                            ArrayList<Books> booksList = new ArrayList<>();
                             int idIndex = cursor.getColumnIndex("id");
                             int nameIndex = cursor.getColumnIndex("name");
                             int authorIndex = cursor.getColumnIndex("author");
@@ -75,6 +76,51 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        getBookThread.start();
+        getAllBookThread.start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (getAllBookThread.isAlive()) {
+            getAllBookThread.destroy();
+        }
+    }
+
+    @Override
+    public void onDeleteBookResult(int bookId, int position) {
+        deleteBook(bookId, position);
+    }
+
+    private void deleteBook(int bookId, int position) {
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+
+        deleteBookThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                int deletedRows = db.delete("library", "id=?", new String[] {String.valueOf(bookId)});
+                if (deletedRows > 0) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "Deleted successfully", Toast.LENGTH_SHORT).show();
+                            synchronized (booksList) {
+                                booksList.remove(position);
+                                bookAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        });
+        deleteBookThread.start();
     }
 }

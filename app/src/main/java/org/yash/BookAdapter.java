@@ -1,6 +1,10 @@
 package org.yash;
 
+import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +22,13 @@ import java.util.ArrayList;
 
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder>{
 
+    public interface DeleteBook {
+        void onDeleteBookResult(int bookId, int position);
+    }
+
     private ArrayList<Books> booksList;
     private Context context;
+    private DeleteBook deleteBook;
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -41,16 +50,34 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder>{
         holder.parent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: navigate to book detail page
-                Toast.makeText(context, "normal click", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(context, BookDetails.class);
+                intent.putExtra(Constants.INTENT_BOOK_ID, booksList.get(position).getId());
+                context.startActivity(intent);
             }
         });
 
         holder.parent.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                //TODO: delete the selected book
-                Toast.makeText(context, "long click", Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Delete")
+                        .setMessage("Are you sure you want to delete this book?")
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            deleteBook = (DeleteBook) context;
+                            deleteBook.onDeleteBookResult(booksList.get(position).getId(), position);
+                        } catch (ClassCastException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).create().show();
                 return true;
             }
         });
